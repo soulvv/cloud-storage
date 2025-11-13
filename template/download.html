@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Download</title>
+    <script>
+        async function fetchFiles() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            if (!username || !password) {
+                alert("Please enter username and password first.");
+                return;
+            }
+
+            const response = await fetch("/get_files", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const data = await response.json();
+            const fileSelect = document.getElementById("filename");
+
+            if (response.ok) {
+                fileSelect.innerHTML = ""; // Clear existing options
+                data.files.forEach(file => {
+                    const option = document.createElement("option");
+                    option.value = file;
+                    option.textContent = file;
+                    fileSelect.appendChild(option);
+                });
+            } else {
+                alert(data.error || "Error fetching files");
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Download Files</h1>
+    <form method="post" action="/download">
+        Username: <input type="text" name="username" id="username" required><br>
+        Password: <input type="password" name="password" id="password" required><br>
+        <button type="button" onclick="fetchFiles()">Fetch Files</button><br>
+        File: 
+        <select name="filename" id="filename" required>
+            <option value="" disabled selected>Select a file</option>
+        </select><br>
+        <button type="submit">Download</button>
+    </form>
+</body>
+</html>
